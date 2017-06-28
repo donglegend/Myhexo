@@ -1,4 +1,6 @@
+---
 title: hexo优化篇
+date: 2015-12-08 21:03:27
 categories: javascript
 tags: hexo
 ---

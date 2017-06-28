@@ -1,4 +1,6 @@
+---
 title: hexo初体验
+date: 2015-12-07 21:03:27
 categories: javascript
 tags: hexo
 ---
