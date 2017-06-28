@@ -1,0 +1,507 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="baidu-site-verification" content="uFV75F3ynA" />
+  
+    <title>webpack那些事儿05 | 东胜</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="东胜">
+    
+    <meta name="description" content="本篇主要关于如何用webpack构建多页应用">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="东胜" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e5ceaae97fa66c463949d78385220bd4";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="东胜" title="东胜"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="东胜">东胜</a></h1>
+				<h2 class="blog-motto">阳光总在风雨后</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:donglegend.github.io">
+					</form>
+					
+					</li>
+					
+
+
+
+				</ul>
+			</nav>		
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/08/25/webpack那些事儿05/" title="webpack那些事儿05" itemprop="url">webpack那些事儿05</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://donglegend.github.io" title="东胜">东胜</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2016-08-25T07:47:32.000Z" itemprop="datePublished">2016-08-25</time>
+    更新日期:<time datetime="2016-08-25T08:54:00.000Z" itemprop="dateModified">2016-08-25</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#利用vue-cli的配置，扩展成多页应用"><span class="toc-number">1.</span> <span class="toc-text">利用vue-cli的配置，扩展成多页应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gulp项目转化成webpack之后的痛"><span class="toc-number">2.</span> <span class="toc-text">gulp项目转化成webpack之后的痛</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#抛弃webpack多页应用配置"><span class="toc-number">3.</span> <span class="toc-text">抛弃webpack多页应用配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下篇基于webpack的多页应用新方案"><span class="toc-number">4.</span> <span class="toc-text">下篇基于webpack的多页应用新方案</span></a></li></ol>
+		</div>
+		
+		<p><b style="color: red;">本篇主要关于如何用webpack构建多页应用</b><br><a id="more"></a></p>
+<p>为什么要构建多页应用呢？因为我的项目本来就是多页应用啊<br>至于为什么要用webpack？因为我要用vue啊，嫌gulp 每次打包慢 啊</p>
+<h2 id="利用vue-cli的配置，扩展成多页应用"><a href="#利用vue-cli的配置，扩展成多页应用" class="headerlink" title="利用vue-cli的配置，扩展成多页应用"></a>利用vue-cli的配置，扩展成多页应用</h2><blockquote>
+<p>想法总是简单，实践总是多坑。</p>
+</blockquote>
+<p>理论支持：spa为单页，那么我是不是输出多个页面就成了多页呢？好像很对的样子。<br>问题来了，如何才能输出多个页面，主意很容易打到 html处理插件 <a href="https://www.npmjs.com/package/html-webpack-plugin" target="_blank" rel="external">html-webpack-plugin</a>上面。<br><b style="color: red;">单页面输出:</b><br><figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">new</span> <span class="selector-tag">HtmlWebpackPlugin</span>(&#123;</div><div class="line">    <span class="attribute">filename</span>: <span class="string">'index.html'</span>,</div><div class="line">    template: path.<span class="built_in">resolve</span>(__dirname, <span class="string">'./app/views/index.html'</span>),</div><div class="line">    inject: true</div><div class="line">&#125;)</div></pre></td></tr></table></figure></p>
+<p><b style="color: red;">多页面只需要多new 几个HtmlWebpackPlugin就好了嘛</b><br>马上实践，果然可以，✌️。那就动动吧！<br>兴奋的修改配置如下:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># webpack.base.conf.js</span></div><div class="line"></div><div class="line">entry: getEntry(),</div><div class="line"><span class="comment">//获取js下面的所有输出js,多页面嘛</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getEntry</span><span class="params">()</span> </span>&#123;</div><div class="line">	<span class="keyword">var</span> jsPath = fs.readdirSync(<span class="string">'./js/'</span>);</div><div class="line">	<span class="keyword">var</span> matchs = [],files = &#123;&#125;;</div><div class="line">	jsPath.<span class="keyword">forEach</span>(<span class="function"><span class="keyword">function</span><span class="params">(item)</span> </span>&#123;</div><div class="line">		matchs = item.match(/(.+)\.js$/);</div><div class="line">		<span class="keyword">if</span> (matchs) &#123;</div><div class="line">			files[matchs[<span class="number">1</span>]] = path.resolve(<span class="string">'./js/'</span>, item);</div><div class="line">		&#125;</div><div class="line">	&#125;);</div><div class="line">	<span class="keyword">return</span> files;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># webpack.dev.conf.js</span></div><div class="line"><span class="keyword">var</span> baseWebpackConfig = <span class="keyword">require</span>(<span class="string">'./webpack.base.conf'</span>);</div><div class="line"><span class="keyword">var</span> pages = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">var</span> dir = fs.readdirSync(path.resolve(__dirname, <span class="string">'../views/'</span>));</div><div class="line">  <span class="keyword">return</span> dir.filter(<span class="function"><span class="keyword">function</span><span class="params">(name)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> name.match(/\.html$/);</div><div class="line">  &#125;);</div><div class="line">&#125;();</div><div class="line"></div><div class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i&lt;pages.length; i++)&#123;</div><div class="line">  <span class="keyword">var</span> chunkname = pages[i];</div><div class="line">  <span class="keyword">var</span> conf = &#123;</div><div class="line">    filename: chunkname,</div><div class="line">    template: path.resolve(__dirname, <span class="string">'../views/'</span>+chunkname),</div><div class="line">    inject: <span class="keyword">false</span></div><div class="line">  &#125;</div><div class="line">  baseWebpackConfig.plugins.push(<span class="keyword">new</span> HtmlWebpackPlugin(conf));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><b style="color: red;">想必聪明的你还记得我之前说过的 inject 这个参数吧</b><br>如果inject: true,那么每个页面会注入entry中所有的js，所以配置为false，js自己写入</p>
+<p>相对的,webpack.prod.conf.js也需要做相应配置。<br>至于其他资源文件路径什么报错问题，请自行解决，毕竟项目架构不同，错误也不尽相同。</p>
+<p>我也是吃了很多苦头，排尽万难，终于把之前用gulp搭建的项目转换成webpack之后，并没有兴奋。<br>因为结果并不令我满意，为什么呢？</p>
+<h2 id="gulp项目转化成webpack之后的痛"><a href="#gulp项目转化成webpack之后的痛" class="headerlink" title="gulp项目转化成webpack之后的痛"></a>gulp项目转化成webpack之后的痛</h2><ul>
+<li>项目大概二十多个页面（就是.html文件），启动项目需要<b style="color: red;">一分钟</b><blockquote>
+<p>啦啦啦<br> 我在等一分钟<br> 或许下一分钟<br> 能够感觉你也心痛<br> …<br> 我想哭</p>
+</blockquote>
+</li>
+<li>还没有引入babel，引入babel转码之后，<b style="color: red;">es6语法不生效</b><br>明明引入了babel转码，为毛始终不生效，头痛许久，查找到问题根源，<br>修改： include: ‘./js’ —-&gt; include: “/“<br>原因未明</li>
+<li><p>es6语法解决之后，打包更慢了，何止一分钟。。。这次不仅仅想哭</p>
+</li>
+<li><p>虽说整个项目用webpack打包，但是还有一些task必须依赖gulp完成，定制需求。</p>
+</li>
+</ul>
+<h2 id="抛弃webpack多页应用配置"><a href="#抛弃webpack多页应用配置" class="headerlink" title="抛弃webpack多页应用配置"></a>抛弃webpack多页应用配置</h2><p><b style="color: red;">因为坑太多，太慢，太痛，太捉急，等等。至此搁笔，果断抛弃此方案！</b></p>
+<h2 id="下篇基于webpack的多页应用新方案"><a href="#下篇基于webpack的多页应用新方案" class="headerlink" title="下篇基于webpack的多页应用新方案"></a><a href="http://donglegend.com/2016/08/25/webpack%E9%82%A3%E4%BA%9B%E4%BA%8B%E5%84%BF06/" target="_blank" rel="external">下篇基于webpack的多页应用新方案</a></h2>  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/webpack/">webpack</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/javascript/">javascript</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://donglegend.github.io/2016/08/25/webpack那些事儿05/" data-title="webpack那些事儿05 | 东胜" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/08/25/webpack那些事儿06/" title="webpack那些事儿06">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  webpack那些事儿06</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/08/25/webpack那些事儿04/"  title="webpack那些事儿04">
+ <strong>NEXT:</strong><br/> 
+ <span>webpack那些事儿04
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread" data-thread-key="2016/08/25/webpack那些事儿05/" data-title="webpack那些事儿05" data-url="http://donglegend.github.io/2016/08/25/webpack那些事儿05/"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#利用vue-cli的配置，扩展成多页应用"><span class="toc-number">1.</span> <span class="toc-text">利用vue-cli的配置，扩展成多页应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gulp项目转化成webpack之后的痛"><span class="toc-number">2.</span> <span class="toc-text">gulp项目转化成webpack之后的痛</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#抛弃webpack多页应用配置"><span class="toc-number">3.</span> <span class="toc-text">抛弃webpack多页应用配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下篇基于webpack的多页应用新方案"><span class="toc-number">4.</span> <span class="toc-text">下篇基于webpack的多页应用新方案</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/css/" title="css">css<sup>1</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>36</sup></a></li>
+		
+			<li><a href="/categories/动画/" title="动画">动画<sup>3</sup></a></li>
+		
+			<li><a href="/categories/后端/" title="后端">后端<sup>3</sup></a></li>
+		
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>12</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/ajax/" title="ajax">ajax<sup>1</sup></a></li>
+		
+			<li><a href="/tags/bower/" title="bower">bower<sup>1</sup></a></li>
+		
+			<li><a href="/tags/code/" title="code">code<sup>1</sup></a></li>
+		
+			<li><a href="/tags/font/" title="font">font<sup>1</sup></a></li>
+		
+			<li><a href="/tags/gulp/" title="gulp">gulp<sup>3</sup></a></li>
+		
+			<li><a href="/tags/hash/" title="hash">hash<sup>1</sup></a></li>
+		
+			<li><a href="/tags/hexo/" title="hexo">hexo<sup>3</sup></a></li>
+		
+			<li><a href="/tags/node/" title="node">node<sup>1</sup></a></li>
+		
+			<li><a href="/tags/php/" title="php">php<sup>1</sup></a></li>
+		
+			<li><a href="/tags/promise/" title="promise">promise<sup>2</sup></a></li>
+		
+			<li><a href="/tags/property/" title="property">property<sup>1</sup></a></li>
+		
+			<li><a href="/tags/title/" title="title">title<sup>1</sup></a></li>
+		
+			<li><a href="/tags/tool/" title="tool">tool<sup>5</sup></a></li>
+		
+			<li><a href="/tags/vue/" title="vue">vue<sup>2</sup></a></li>
+		
+			<li><a href="/tags/webpack/" title="webpack">webpack<sup>6</sup></a></li>
+		
+			<li><a href="/tags/写作/" title="写作">写作<sup>10</sup></a></li>
+		
+			<li><a href="/tags/前端资源/" title="前端资源">前端资源<sup>1</sup></a></li>
+		
+			<li><a href="/tags/数据结构/" title="数据结构">数据结构<sup>6</sup></a></li>
+		
+			<li><a href="/tags/服务器/" title="服务器">服务器<sup>2</sup></a></li>
+		
+			<li><a href="/tags/特效/" title="特效">特效<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> 菜鸟总是在被虐中长大 <br/>
+			人生路上甜苦和喜忧 愿与你分担所有</p>
+	</section>
+	 
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/donglegend?is_all=1" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/donglegend" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">The first step is as good as half over. 
+			2017
+		</p>
+		<!-- <p class="copyright">
+			Powered by 
+			<a href="http://hexo.io" target="_blank" title="hexo">hexo</a> 
+			and Theme by 
+			<a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> 
+			© 2017 
+		
+		<a href="http://donglegend.github.io" target="_blank" title="东胜">东胜</a>
+		
+		</p> -->
+</div>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?db48d9ce7be510c8086c5439de4ce378";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"null"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var elBackTop = $("#backTop");
+  $(window).scroll(function() {
+    var el;
+    el = $(this);
+    if (el.scrollTop() > 300) {
+      return elBackTop.fadeIn();
+    } else {
+      return elBackTop.fadeOut();
+    }
+  });
+  elBackTop.on("click", function() {
+    return $('body,html').animate({
+      scrollTop: 0
+    }, 300);
+  });
+}); 
+</script>
+
+
+  </body>
+</html>
+
+<!-- <a href="https://github.com/donglegend/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a> -->
+
+<div id="backTop" style="position: fixed; right: 2rem; bottom: 3rem; width: 40px; height: 40px;background: #4691e2; cursor:pointer; border-radius: 6px; line-height: 40px; text-align:center; color: #fff;">顶部</div>

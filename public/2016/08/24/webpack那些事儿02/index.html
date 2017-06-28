@@ -1,0 +1,511 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="baidu-site-verification" content="uFV75F3ynA" />
+  
+    <title>webpack那些事儿02 | 东胜</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="东胜">
+    
+    <meta name="description" content="接着上篇我们有了最简单的安装了webpack的项目目录这节我们从零开始搭建一个简单的基于webpack的spa应用demo本节只说基础常用配置项，复杂后续讲解.">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="东胜" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e5ceaae97fa66c463949d78385220bd4";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="东胜" title="东胜"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="东胜">东胜</a></h1>
+				<h2 class="blog-motto">阳光总在风雨后</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:donglegend.github.io">
+					</form>
+					
+					</li>
+					
+
+
+
+				</ul>
+			</nav>		
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/08/24/webpack那些事儿02/" title="webpack那些事儿02" itemprop="url">webpack那些事儿02</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://donglegend.github.io" title="东胜">东胜</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2016-08-24T06:23:20.000Z" itemprop="datePublished">2016-08-24</time>
+    更新日期:<time datetime="2016-09-02T03:03:28.000Z" itemprop="dateModified">2016-09-02</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#新建项目结构目录，如下"><span class="toc-number">1.</span> <span class="toc-text">新建项目结构目录，如下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置webpack-config-js文件"><span class="toc-number">2.</span> <span class="toc-text">配置webpack.config.js文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动一个http服务"><span class="toc-number">3.</span> <span class="toc-text">启动一个http服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#体验loader加载器功能"><span class="toc-number">4.</span> <span class="toc-text">体验loader加载器功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#两个重量级中间件"><span class="toc-number">5.</span> <span class="toc-text">两个重量级中间件</span></a></li></ol>
+		</div>
+		
+		<p>接着上篇我们有了最简单的安装了webpack的项目目录<br><b style="color: red;">这节我们从零开始搭建一个简单的基于webpack的spa应用demo</b><br>本节只说基础常用配置项，复杂后续讲解.<br><a id="more"></a></p>
+<h2 id="新建项目结构目录，如下"><a href="#新建项目结构目录，如下" class="headerlink" title="新建项目结构目录，如下"></a>新建项目结构目录，如下</h2><p><img src="/images/webpack/1.png" alt="目录结构"></p>
+<pre><code>views: 模版目录
+modules: js模块目录
+</code></pre><p>code:<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"># index.html</div><div class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="css"></span></div><div class="line">		<span class="selector-tag">body</span>&#123;</div><div class="line">			<span class="attribute">background</span>: <span class="number">#f90</span>;</div><div class="line">		&#125;</div><div class="line">		<span class="selector-tag">h2</span>&#123;</div><div class="line">			<span class="attribute">text-align</span>: center;</div><div class="line">			<span class="attribute">font-size</span>: <span class="number">30px</span>;</div><div class="line">			<span class="attribute">padding</span>: <span class="number">10px</span> <span class="number">0</span>;</div><div class="line">		&#125;</div><div class="line">	<span class="tag">&lt;/<span class="name">style</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"/output/static/app.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># main.js</span></div><div class="line"><span class="keyword">var</span> Hello = <span class="built_in">require</span>(<span class="string">"./modules/hello"</span>);</div><div class="line"><span class="built_in">document</span>.write(Hello)</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># hello.js</span></div><div class="line"><span class="keyword">module</span>.exports = <span class="string">"&lt;h2&gt;Hello donglegend.&lt;/h2&gt;"</span>;</div></pre></td></tr></table></figure>
+<h2 id="配置webpack-config-js文件"><a href="#配置webpack-config-js文件" class="headerlink" title="配置webpack.config.js文件"></a>配置webpack.config.js文件</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"># 根目录新建webpack.config.js(webpack 会自动寻找一个叫webpack.config.js的文件去执行)</div><div class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">"path"</span>);</div><div class="line"></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">	entry: &#123;</div><div class="line">		app: path.resolve(__dirname, <span class="string">"./app/main.js"</span>)</div><div class="line">		<span class="comment">// entry:顾名思义入口文件,app/main.js,输入名字为 app.js</span></div><div class="line">	&#125;,</div><div class="line">	output: &#123;</div><div class="line">		path: path.resolve(__dirname, <span class="string">"./output/static"</span>),<span class="comment">//输出路径</span></div><div class="line">		publicPath: <span class="string">'static/'</span>, <span class="comment">//调试或者 CDN 之类的域名,稍候会用到</span></div><div class="line">		filename: <span class="string">"[name].js"</span> <span class="comment">//配置生成的文件名</span></div><div class="line">	&#125;,</div><div class="line">	resolve: &#123;</div><div class="line">		root: __dirname,  <span class="comment">//模块从里开始查找</span></div><div class="line">		extensions: [<span class="string">''</span>, <span class="string">'.js'</span>, <span class="string">'.vue'</span>] <span class="comment">//模块后缀名，先这么些，稍候会用到</span></div><div class="line">	&#125;,</div><div class="line">	<span class="keyword">module</span>: &#123;</div><div class="line">		loaders: [] <span class="comment">//模块加载器，默认null</span></div><div class="line">	&#125;,</div><div class="line">	plugins: [] <span class="comment">//插件，默认null</span></div><div class="line">&#125;</div><div class="line"># 在终端执行命令：webpack </div><div class="line">#（不出意外，会生成output目录,<span class="regexp">/output/</span><span class="keyword">static</span>/app.js）</div></pre></td></tr></table></figure>
+<h2 id="启动一个http服务"><a href="#启动一个http服务" class="headerlink" title="启动一个http服务"></a>启动一个http服务</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 根目录新建dev-server.js</span></div><div class="line"><span class="keyword">var</span> express = <span class="keyword">require</span>(<span class="string">"express"</span>);</div><div class="line"><span class="keyword">var</span> app = express();</div><div class="line"><span class="keyword">var</span> port = process.env.PORT || <span class="number">3000</span>;</div><div class="line"></div><div class="line"></div><div class="line">app.<span class="keyword">use</span>(express.<span class="keyword">static</span>(__dirname+<span class="string">'/'</span>));</div><div class="line"></div><div class="line">app.listen(port, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span></span>&#123;</div><div class="line">	<span class="keyword">if</span> (err) &#123;</div><div class="line">		<span class="keyword">throw</span> err;    </div><div class="line">	&#125;</div><div class="line">	console.log(<span class="string">'Listening at http://localhost:'</span> + port + <span class="string">'\n'</span>)</div><div class="line">&#125;)</div><div class="line"><span class="comment"># 执行命令 sudo cnpm i express --save-dev</span></div><div class="line"><span class="comment"># 安装完成 执行命令: node dev-server.js</span></div><div class="line"><span class="comment"># Listening at http://localhost:3000</span></div><div class="line"><span class="comment"># 服务正常启动,chrome浏览器输入  http://localhost:3000/app/views/index.html</span></div></pre></td></tr></table></figure>
+<p>ok,看到这个就表示成功了<br><img src="/images/webpack/2.png" alt=""></p>
+<p>回想一下，我们做了什么，<b style="color: red">用webpack命令打包了main.js–&gt;app.js</b><br>没错这是最简单的webpack，项目当然不能这么做，我们还没用任何loader和plugins</p>
+<h2 id="体验loader加载器功能"><a href="#体验loader加载器功能" class="headerlink" title="体验loader加载器功能"></a>体验loader加载器功能</h2><p>这里用 vue-loader做一个案例(好兴奋，终于可以可以加载我的.vue文件了</p>
+<p>要想试用，先行安装，麻利利的：</p>
+<pre><code>sudo cnpm i vue vue-loader --save-dev
+</code></pre><p>看package.json(vue默认依赖babel等模块，既然如此奔着不浪费原则，就用es6书写吧)<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="string">"devDependencies"</span>: &#123;</div><div class="line">    <span class="string">"babel-core"</span>: <span class="string">"^6.13.2"</span>,</div><div class="line">    <span class="string">"babel-loader"</span>: <span class="string">"^6.2.5"</span>,</div><div class="line">    <span class="string">"babel-plugin-transform-runtime"</span>: <span class="string">"^6.12.0"</span>,</div><div class="line">    <span class="string">"babel-preset-es2015"</span>: <span class="string">"^6.13.2"</span>,</div><div class="line">    <span class="string">"babel-runtime"</span>: <span class="string">"^6.11.6"</span>,</div><div class="line">    <span class="string">"css-loader"</span>: <span class="string">"^0.24.0"</span>,</div><div class="line">    <span class="string">"express"</span>: <span class="string">"^4.14.0"</span>,</div><div class="line">    <span class="string">"vue"</span>: <span class="string">"^1.0.26"</span>,</div><div class="line">    <span class="string">"vue-hot-reload-api"</span>: <span class="string">"^1.3.3"</span>,</div><div class="line">    <span class="string">"vue-html-loader"</span>: <span class="string">"^1.2.3"</span>,</div><div class="line">    <span class="string">"vue-loader"</span>: <span class="string">"^8.5.2"</span>,</div><div class="line">    <span class="string">"vue-style-loader"</span>: <span class="string">"^1.0.0"</span>,</div><div class="line">    <span class="string">"webpack"</span>: <span class="string">"^1.13.2"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>app目录下新建components目录</li>
+<li>components下新建mountains.vue</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"># mountains.vue</div><div class="line"><span class="tag">&lt;<span class="name">template</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">ul</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">li</span> <span class="attr">v-for</span>=<span class="string">"v in list"</span> <span class="attr">v-text</span>=<span class="string">"v"</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">ul</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">template</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="css"></span></div><div class="line">	<span class="selector-tag">ul</span>&#123;</div><div class="line">		<span class="attribute">width</span>: <span class="number">800px</span>;</div><div class="line">		<span class="attribute">margin</span>: <span class="number">0</span> auto;</div><div class="line">		<span class="attribute">text-align</span>: center;</div><div class="line">	&#125;</div><div class="line">	<span class="selector-tag">li</span>&#123;</div><div class="line">		<span class="attribute">padding</span>: <span class="number">10px</span> <span class="number">0</span>;</div><div class="line">		<span class="attribute">margin</span>: <span class="number">6px</span> <span class="number">0</span>;</div><div class="line">		<span class="attribute">background</span>: <span class="number">#efefef</span>;</div><div class="line">		<span class="attribute">-webkit-transition</span>: all .<span class="number">3s</span>;</div><div class="line">	&#125;</div><div class="line">	<span class="selector-tag">li</span><span class="selector-pseudo">:hover</span>&#123;</div><div class="line">		<span class="attribute">background</span>: <span class="number">#ccc</span>;</div><div class="line">	&#125;</div><div class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></div><div class="line">	<span class="keyword">export</span> <span class="keyword">default</span> &#123;</div><div class="line">		data () &#123;</div><div class="line">			<span class="keyword">return</span> &#123;</div><div class="line">				<span class="attr">list</span>: [<span class="string">"恒山"</span>, <span class="string">"衡山"</span>, <span class="string">"华山"</span>, <span class="string">"泰山"</span>, <span class="string">"嵩山"</span>]</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># main.js</span></div><div class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">"vue"</span>;</div><div class="line"><span class="keyword">import</span> Mountain <span class="keyword">from</span> <span class="string">"./components/mountains.vue"</span>;</div><div class="line"></div><div class="line"><span class="keyword">new</span> Vue(&#123;</div><div class="line">	el: <span class="string">"body"</span>,</div><div class="line">	components: &#123;</div><div class="line">		Mountain</div><div class="line">	&#125;</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># index.html 增加下列标签</span></div><div class="line"><span class="section">&lt;mountain&gt;</span><span class="section">&lt;/mountain&gt;</span></div></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># webpack.config.js 文件的 module增加vue和babel加载器</span></div><div class="line"><span class="attr">loaders:</span> <span class="string">[&#123;</span></div><div class="line">	<span class="attr">test:</span> <span class="string">/\.vue$/,</span></div><div class="line">	<span class="attr">loader:</span> <span class="string">'vue'</span></div><div class="line"><span class="string">&#125;,</span> <span class="string">&#123;</span></div><div class="line">	<span class="attr">test:</span> <span class="string">/\.js$/,</span></div><div class="line">	<span class="attr">loader:</span> <span class="string">'babel'</span><span class="string">,</span></div><div class="line">	<span class="attr">query:</span> <span class="string">&#123;</span></div><div class="line"><span class="attr">        presets:</span> <span class="string">['es2015']</span></div><div class="line">    <span class="string">&#125;,</span></div><div class="line">	<span class="attr">include:</span> <span class="string">"/"</span><span class="string">,</span></div><div class="line">	<span class="attr">exclude:</span> <span class="string">/node_modules/</span></div><div class="line"><span class="string">&#125;]</span></div></pre></td></tr></table></figure>
+<p>执行命令 :  <b style="color: green;">webpack</b><br>刷新页面  <a href="http://localhost:3000/app/views/index.html" target="_blank" rel="external">http://localhost:3000/app/views/index.html</a></p>
+<p><img src="/images/webpack/3.png" alt=""></p>
+<p>至此，vue文件和es6代码 正确被加载执行，有木有很开心。<br>小提示：<b style="color: #f90">如果执行webpack命令有出错，可以加上参数 webpack –display-error-details</b><br>注意：diplay-error-details 前面是 两个短横杠噢</p>
+<h2 id="两个重量级中间件"><a href="#两个重量级中间件" class="headerlink" title="两个重量级中间件"></a>两个重量级中间件</h2><p>不知不觉又写了这么多，然而还没真正开始，接着观看下篇，<br><b style="color: red">webpack真正的牛逼之处，两个中间件: <a href="https://www.npmjs.com/package/webpack-dev-middleware" target="_blank" rel="external">webpack-dev-middleware</a> 和 <a href="https://www.npmjs.com/package/webpack-hot-middleware" target="_blank" rel="external">webpack-hot-middleware</a></b></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/webpack/">webpack</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/javascript/">javascript</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://donglegend.github.io/2016/08/24/webpack那些事儿02/" data-title="webpack那些事儿02 | 东胜" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/08/24/webpack那些事儿03/" title="webpack那些事儿03">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  webpack那些事儿03</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/08/24/webpack那些事儿01/"  title="webpack那些事儿01">
+ <strong>NEXT:</strong><br/> 
+ <span>webpack那些事儿01
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread" data-thread-key="2016/08/24/webpack那些事儿02/" data-title="webpack那些事儿02" data-url="http://donglegend.github.io/2016/08/24/webpack那些事儿02/"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#新建项目结构目录，如下"><span class="toc-number">1.</span> <span class="toc-text">新建项目结构目录，如下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置webpack-config-js文件"><span class="toc-number">2.</span> <span class="toc-text">配置webpack.config.js文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动一个http服务"><span class="toc-number">3.</span> <span class="toc-text">启动一个http服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#体验loader加载器功能"><span class="toc-number">4.</span> <span class="toc-text">体验loader加载器功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#两个重量级中间件"><span class="toc-number">5.</span> <span class="toc-text">两个重量级中间件</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/css/" title="css">css<sup>1</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>36</sup></a></li>
+		
+			<li><a href="/categories/动画/" title="动画">动画<sup>3</sup></a></li>
+		
+			<li><a href="/categories/后端/" title="后端">后端<sup>3</sup></a></li>
+		
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>12</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/ajax/" title="ajax">ajax<sup>1</sup></a></li>
+		
+			<li><a href="/tags/bower/" title="bower">bower<sup>1</sup></a></li>
+		
+			<li><a href="/tags/code/" title="code">code<sup>1</sup></a></li>
+		
+			<li><a href="/tags/font/" title="font">font<sup>1</sup></a></li>
+		
+			<li><a href="/tags/gulp/" title="gulp">gulp<sup>3</sup></a></li>
+		
+			<li><a href="/tags/hash/" title="hash">hash<sup>1</sup></a></li>
+		
+			<li><a href="/tags/hexo/" title="hexo">hexo<sup>3</sup></a></li>
+		
+			<li><a href="/tags/node/" title="node">node<sup>1</sup></a></li>
+		
+			<li><a href="/tags/php/" title="php">php<sup>1</sup></a></li>
+		
+			<li><a href="/tags/promise/" title="promise">promise<sup>2</sup></a></li>
+		
+			<li><a href="/tags/property/" title="property">property<sup>1</sup></a></li>
+		
+			<li><a href="/tags/title/" title="title">title<sup>1</sup></a></li>
+		
+			<li><a href="/tags/tool/" title="tool">tool<sup>5</sup></a></li>
+		
+			<li><a href="/tags/vue/" title="vue">vue<sup>2</sup></a></li>
+		
+			<li><a href="/tags/webpack/" title="webpack">webpack<sup>6</sup></a></li>
+		
+			<li><a href="/tags/写作/" title="写作">写作<sup>10</sup></a></li>
+		
+			<li><a href="/tags/前端资源/" title="前端资源">前端资源<sup>1</sup></a></li>
+		
+			<li><a href="/tags/数据结构/" title="数据结构">数据结构<sup>6</sup></a></li>
+		
+			<li><a href="/tags/服务器/" title="服务器">服务器<sup>2</sup></a></li>
+		
+			<li><a href="/tags/特效/" title="特效">特效<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> 菜鸟总是在被虐中长大 <br/>
+			人生路上甜苦和喜忧 愿与你分担所有</p>
+	</section>
+	 
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/donglegend?is_all=1" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/donglegend" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">The first step is as good as half over. 
+			2017
+		</p>
+		<!-- <p class="copyright">
+			Powered by 
+			<a href="http://hexo.io" target="_blank" title="hexo">hexo</a> 
+			and Theme by 
+			<a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> 
+			© 2017 
+		
+		<a href="http://donglegend.github.io" target="_blank" title="东胜">东胜</a>
+		
+		</p> -->
+</div>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?db48d9ce7be510c8086c5439de4ce378";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"null"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var elBackTop = $("#backTop");
+  $(window).scroll(function() {
+    var el;
+    el = $(this);
+    if (el.scrollTop() > 300) {
+      return elBackTop.fadeIn();
+    } else {
+      return elBackTop.fadeOut();
+    }
+  });
+  elBackTop.on("click", function() {
+    return $('body,html').animate({
+      scrollTop: 0
+    }, 300);
+  });
+}); 
+</script>
+
+
+  </body>
+</html>
+
+<!-- <a href="https://github.com/donglegend/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a> -->
+
+<div id="backTop" style="position: fixed; right: 2rem; bottom: 3rem; width: 40px; height: 40px;background: #4691e2; cursor:pointer; border-radius: 6px; line-height: 40px; text-align:center; color: #fff;">顶部</div>

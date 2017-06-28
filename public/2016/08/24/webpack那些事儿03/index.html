@@ -1,0 +1,526 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="baidu-site-verification" content="uFV75F3ynA" />
+  
+    <title>webpack那些事儿03 | 东胜</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="东胜">
+    
+    <meta name="description" content="本节主要讲述 webpack的两大经典开发调试插件，热插拔内存缓存机制">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="东胜" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e5ceaae97fa66c463949d78385220bd4";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="东胜" title="东胜"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="东胜">东胜</a></h1>
+				<h2 class="blog-motto">阳光总在风雨后</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:donglegend.github.io">
+					</form>
+					
+					</li>
+					
+
+
+
+				</ul>
+			</nav>		
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/08/24/webpack那些事儿03/" title="webpack那些事儿03" itemprop="url">webpack那些事儿03</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://donglegend.github.io" title="东胜">东胜</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2016-08-24T13:16:23.000Z" itemprop="datePublished">2016-08-24</time>
+    更新日期:<time datetime="2016-08-25T06:31:59.000Z" itemprop="dateModified">2016-08-25</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#html-webpack-plugin插件的使用"><span class="toc-number">1.</span> <span class="toc-text">html-webpack-plugin插件的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack-dev-middleware-插件登场"><span class="toc-number">2.</span> <span class="toc-text">webpack-dev-middleware 插件登场</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack-hot-middleware-为了左手"><span class="toc-number">3.</span> <span class="toc-text">webpack-hot-middleware 为了左手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现html模版更改自动刷新"><span class="toc-number">4.</span> <span class="toc-text">实现html模版更改自动刷新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本案例测试源码下载"><span class="toc-number">5.</span> <span class="toc-text">本案例测试源码下载</span></a></li></ol>
+		</div>
+		
+		<p><b style="color: red;">本节主要讲述 webpack的两大经典开发调试插件，热插拔内存缓存机制</b><br><a id="more"></a></p>
+<h2 id="html-webpack-plugin插件的使用"><a href="#html-webpack-plugin插件的使用" class="headerlink" title="html-webpack-plugin插件的使用"></a><a href="https://www.npmjs.com/package/html-webpack-plugin" target="_blank" rel="external">html-webpack-plugin插件的使用</a></h2><p>如果没记错，上篇的时候构建完成的js文件是我们在页面用 <strong>script</strong> 标签手动引入的, 聪明的您应该马上看出问题来了，难道每次更改输出path，都要手动更新引入链接吗？如果加上 hash防止缓存，那么一串，岂不头疼欲死。有需求就有解决方案，此款插件就是用来 <b style="color: red;">将依赖自动写入html文件</b>的。<br><figure class="highlight q"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo cnpm i html-webpack-plugin --<span class="built_in">save</span>-<span class="built_in">dev</span></div></pre></td></tr></table></figure></p>
+<p>修改配置如下：<br><figure class="highlight vala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># 终于动用了配置文件里的 plugins 功能选项，已经快遗忘在角落了</span></div><div class="line">plugins: [</div><div class="line">	<span class="keyword">new</span> HtmlWebpackPlugin(&#123;</div><div class="line">        filename: <span class="string">'../index.html'</span>, </div><div class="line">        <span class="comment">//渲染输出html文件名,路径相对于 output.path 的值</span></div><div class="line"></div><div class="line">        template: path.resolve(__dirname, <span class="string">'./app/views/index.html'</span>),</div><div class="line">        <span class="comment">//渲染源模版文件</span></div><div class="line"></div><div class="line">        inject: <span class="literal">true</span> </div><div class="line">        <span class="comment">//这个东西非常重要，true: 自动写入依赖文件; false: 不写入依赖，构建多页面非常有用</span></div><div class="line">    &#125;) </div><div class="line">] </div><div class="line"></div><div class="line"><span class="meta"># 自动写入依赖，所以删除app/views/index.html 的script标签链接</span></div><div class="line">&lt;body&gt;</div><div class="line">	&lt;mountain&gt;&lt;/mountain&gt;</div><div class="line">&lt;/body&gt;</div><div class="line"><span class="meta"># 执行命令： webpack</span></div><div class="line">webpack</div></pre></td></tr></table></figure></p>
+<p>查看output目录，发现多了一个 index.html<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="css"></span></div><div class="line">		<span class="selector-tag">body</span>&#123;</div><div class="line">			<span class="attribute">background</span>: <span class="number">#f90</span>;</div><div class="line">		&#125;</div><div class="line">		<span class="selector-tag">h2</span>&#123;</div><div class="line">			<span class="attribute">text-align</span>: center;</div><div class="line">			<span class="attribute">font-size</span>: <span class="number">30px</span>;</div><div class="line">			<span class="attribute">padding</span>: <span class="number">10px</span> <span class="number">0</span>;</div><div class="line">		&#125;</div><div class="line">	<span class="tag">&lt;/<span class="name">style</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">mountain</span>&gt;</span><span class="tag">&lt;/<span class="name">mountain</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"static/app.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div><div class="line"># 上面的script就是自动写入的依赖，src路径就是  配置文件中 output.publicPath </div><div class="line"># 终于用到了这个调试功能</div></pre></td></tr></table></figure></p>
+<p>用chrome 打开链接<a href="http://localhost:3000/output/index.html" target="_blank" rel="external">http://localhost:3000/output/index.html</a> 可以看到一样的屎黄色结果</p>
+<p>可能聪明的您又发现了一个问题，我们每次改动一句代码，哪怕更改一个字体大小，几像素留白，就要编译打包一次才能看到结果，有没有好烦呢？</p>
+<h2 id="webpack-dev-middleware-插件登场"><a href="#webpack-dev-middleware-插件登场" class="headerlink" title="webpack-dev-middleware 插件登场"></a><a href="https://www.npmjs.com/package/webpack-dev-middleware" target="_blank" rel="external">webpack-dev-middleware 插件登场</a></h2><figure class="highlight q"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo cnpm i webpack-<span class="built_in">dev</span>-middleware --<span class="built_in">save</span>-<span class="built_in">dev</span></div></pre></td></tr></table></figure>
+<p>此插件主要结合 express的 中间件使用，修改dev-server.js，方法如下:<br><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> express = <span class="keyword">require</span>(<span class="string">"express"</span>);</div><div class="line"><span class="keyword">var</span> app = express();</div><div class="line"><span class="keyword">var</span> port = process.env.PORT || <span class="number">3000</span>;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 引入webpack 及其 配置config</div><div class="line"> */</div><div class="line"><span class="keyword">var</span> webpack = <span class="keyword">require</span>(<span class="string">"webpack"</span>);</div><div class="line"><span class="keyword">var</span> webpackConfig = <span class="keyword">require</span>(<span class="string">"./webpack.config.js"</span>);</div><div class="line"><span class="comment">//调用配置,生成 compiler instance</span></div><div class="line"><span class="keyword">var</span> compiler = webpack(webpackConfig); </div><div class="line"></div><div class="line"><span class="comment">//这里是重点，使用 webpack-dev-middleware 插件</span></div><div class="line"><span class="keyword">var</span> devMiddleware = <span class="keyword">require</span>(<span class="string">'webpack-dev-middleware'</span>)(compiler, &#123;</div><div class="line">    publicPath: webpackConfig.output.publicPath,</div><div class="line">    stats: &#123;</div><div class="line">        colors: <span class="keyword">true</span>,</div><div class="line">        chunks: <span class="keyword">false</span></div><div class="line">    &#125;</div><div class="line">&#125;)</div><div class="line"><span class="comment">// 注册中间件</span></div><div class="line">app.<span class="keyword">use</span>(devMiddleware);</div><div class="line"></div><div class="line"><span class="comment">// 使用静态资源</span></div><div class="line">app.<span class="keyword">use</span>(express.<span class="keyword">static</span>(__dirname+<span class="string">'/'</span>));</div><div class="line"></div><div class="line">app.listen(port, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span></span>&#123;</div><div class="line">	<span class="keyword">if</span> (err) &#123;</div><div class="line">		<span class="keyword">throw</span> err;    </div><div class="line">	&#125;</div><div class="line">	console.log(<span class="string">'Listening at http://localhost:'</span> + port + <span class="string">'\n'</span>)</div><div class="line">&#125;)</div></pre></td></tr></table></figure></p>
+<p>为了方便调试 和 理解什么叫 <b style="color: red">内存缓存，不写入硬盘</b>，我们修改一点webpack配置</p>
+<ul>
+<li>修改 output.publicPath: “/“,修改为根目录</li>
+<li>plugins中的filename: “index.html” ,置换到根目录<figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">output</span>: &#123;</div><div class="line">	<span class="attribute">path</span>: path.resolve(__dirname, <span class="string">"./output/static"</span>), <span class="comment">//输出路径</span></div><div class="line">	<span class="attribute">publicPath</span>: <span class="string">'/'</span>, <span class="comment">//调试或者 CDN 之类的域名,稍候会用到</span></div><div class="line">	<span class="attribute">filename</span>: <span class="string">"[name].js"</span> <span class="comment">//配置生成的文件名</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="attribute">plugins</span>: [</div><div class="line">	new HtmlWebpackPlugin(&#123;</div><div class="line">        <span class="attribute">filename</span>: <span class="string">'index.html'</span>,</div><div class="line">        <span class="attribute">template</span>: path.resolve(__dirname, <span class="string">'./app/views/index.html'</span>),</div><div class="line">        <span class="attribute">inject</span>: true</div><div class="line">    &#125;)</div><div class="line">]</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>然后，<b style="color: green">重启服务 node dev-server.js</b></p>
+<p>打来浏览器输入： <a href="http://localhost:3000/index.html" target="_blank" rel="external">http://localhost:3000/index.html</a><br>哇塞，又看到了记忆中 屎黄色 的界面，有木有很开心,打开控制台,会看到这句代码<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"/app.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>惊奇的事情发生了，我们的根目录根本没有index.html 和 app.js，这些东西哪里来的呢？<br>这就是我们的 伟大的中间件 webpack-dev-middleware 的功劳。</p>
+<p>然后去mountains.vue文件中修改背景色或者其他，然后刷新浏览器就能看到效果了<br>有木有很赞，速度还超快哦,如图改动了背景色，<b style="color: red;">只需 55ms,就是快</b><br><img src="/images/webpack/4.png" alt="time"></p>
+<p>接下来就是解放我们的双手，自动实时刷新页面.</p>
+<h2 id="webpack-hot-middleware-为了左手"><a href="#webpack-hot-middleware-为了左手" class="headerlink" title="webpack-hot-middleware 为了左手"></a><a href="https://www.npmjs.com/package/webpack-hot-middleware" target="_blank" rel="external">webpack-hot-middleware 为了左手</a></h2><figure class="highlight applescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 老套路 install</span></div><div class="line">sudo cnpm i webpack-hot-middleware <span class="comment">--save-dev</span></div></pre></td></tr></table></figure>
+<p>使用步骤,参照api，很简单</p>
+<ul>
+<li><p>增加插件plugins</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># 注意先行引入 webpack  </span></div><div class="line"><span class="meta"># var webpack = require("webpack");</span></div><div class="line">plugins: <span class="type"></span>[</div><div class="line">	<span class="comment">// Webpack 1.0 </span></div><div class="line">    <span class="keyword">new</span> <span class="type">webpack</span>.optimize.OccurenceOrderPlugin(),</div><div class="line">    <span class="comment">// Webpack 2.0 fixed this mispelling </span></div><div class="line">    <span class="comment">// new webpack.optimize.OccurrenceOrderPlugin(), </span></div><div class="line">    <span class="keyword">new</span> <span class="type">webpack</span>.HotModuleReplacementPlugin(),</div><div class="line">    <span class="keyword">new</span> <span class="type">webpack</span>.NoErrorsPlugin(),</div><div class="line">	<span class="keyword">new</span> <span class="type">HtmlWebpackPlugin</span>(&#123;</div><div class="line">        filename: <span class="type"></span>'index.html<span class="string">',</span></div><div class="line">        template: path.resolve(__dirname, './app/views/index.html<span class="string">'),</span></div><div class="line">        inject: true</div><div class="line">    &#125;)</div><div class="line">]</div></pre></td></tr></table></figure>
+</li>
+<li><p>Add ‘webpack-hot-middleware/client’ into the entry array(添加xx到入口数组)</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">entry</span>: &#123;</div><div class="line">	<span class="attribute">app</span>: [<span class="string">'webpack-hot-middleware/client'</span>,path.<span class="built_in">resolve</span>(__dirname, <span class="string">"./app/main.js"</span>)]</div><div class="line">&#125;</div><div class="line">更好的方法是不动基本配置，稍候会在<span class="selector-tag">dev-server</span><span class="selector-class">.js</span>中 书写</div></pre></td></tr></table></figure>
+</li>
+<li><p>Add webpack-hot-middleware attached to the same compiler instance</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># dev-server.js中 <span class="keyword">app</span>.<span class="keyword">use</span>(devMiddleware); 之后增加</div><div class="line"><span class="keyword">app</span>.<span class="keyword">use</span>(require(<span class="string">"webpack-hot-middleware"</span>)(compiler));</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>重新启动服务  <b style="color: green;">node der-server.js</b><br>然后修改一个 <b style="color: red;">body 背景，切回浏览器，哇塞，自动刷新了</b>哦<br>怀着激动的心情改了一下main.js，开心的切回浏览器哇靠靠，<b style="color: red;">一切都没变化，错觉？</b>果然手动刷新， 看到了你想看到的。<br>你没错，是我错了，更改上面第二部的 entry参数配置如下:<br><figure class="highlight ada"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># 增加 参数reload=<span class="literal">true</span></div><div class="line"><span class="keyword">entry</span>: &#123;</div><div class="line">	app: [<span class="symbol">'webpack</span>-hot-middleware/client?noInfo=<span class="literal">true</span>&amp;reload=<span class="literal">true</span>',path.resolve(__dirname, <span class="string">"./app/main.js"</span>)]</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>果然重启服务，一切ok.<br>闲的蛋疼又去，更改了.vue文件里面的 data 数据，然后。。。。问题又来了，无热加载，控制台却能看到vue文件变化消息<br>查了查资料：发现这可能是vue的热加载机制和策略问题，目前我不知道怎么解决。</p>
+<p>接下来还有一件事，那就是html模版改动的自动刷新，现在是没有这个功能的，不信你试试！</p>
+<h2 id="实现html模版更改自动刷新"><a href="#实现html模版更改自动刷新" class="headerlink" title="实现html模版更改自动刷新"></a>实现html模版更改自动刷新</h2><ul>
+<li>更改entry注入参数方式，从dev-server.js写入，example:</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># <span class="selector-tag">webpack</span><span class="selector-class">.config</span><span class="selector-class">.js</span> 恢复初始设置</div><div class="line"><span class="selector-tag">entry</span>: &#123;</div><div class="line">	<span class="attribute">app</span>: path.<span class="built_in">resolve</span>(__dirname, <span class="string">"./app/main.js"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dev-server.js</span></div><div class="line"><span class="comment"># 增加文件，刷新client单独文件配置，配合html reload</span></div><div class="line"><span class="keyword">var</span> express = <span class="keyword">require</span>(<span class="string">"express"</span>);</div><div class="line"><span class="keyword">var</span> app = express();</div><div class="line"><span class="keyword">var</span> port = process.env.PORT || <span class="number">3000</span>;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 引入webpack 及其 配置config</div><div class="line"> */</div><div class="line"><span class="keyword">var</span> webpack = <span class="keyword">require</span>(<span class="string">"webpack"</span>);</div><div class="line"><span class="keyword">var</span> webpackConfig = <span class="keyword">require</span>(<span class="string">"./webpack.config.js"</span>);</div><div class="line"></div><div class="line"><span class="comment">// var devClient = 'webpack-hot-middleware/client?noInfo=true&amp;reload=true';</span></div><div class="line"><span class="keyword">var</span> devClient = <span class="string">'./dev-client'</span>;</div><div class="line">Object.keys(webpackConfig.entry).<span class="keyword">forEach</span>(<span class="function"><span class="keyword">function</span> <span class="params">(name, i)</span> </span>&#123;</div><div class="line">    <span class="keyword">var</span> extras = [devClient]</div><div class="line">    webpackConfig.entry[name] = extras.concat(webpackConfig.entry[name])</div><div class="line">&#125;)</div><div class="line"><span class="comment">//调用配置</span></div><div class="line"><span class="keyword">var</span> compiler = webpack(webpackConfig); </div><div class="line"></div><div class="line"><span class="comment">//这里是重点，使用 webpack-dev-middleware 插件</span></div><div class="line"><span class="keyword">var</span> devMiddleware = <span class="keyword">require</span>(<span class="string">'webpack-dev-middleware'</span>)(compiler, &#123;</div><div class="line">    publicPath: <span class="string">'/'</span>,</div><div class="line">    stats: &#123;</div><div class="line">        colors: <span class="keyword">true</span>,</div><div class="line">        chunks: <span class="keyword">false</span></div><div class="line">    &#125;</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="keyword">var</span> hotMiddleware = <span class="keyword">require</span>(<span class="string">'webpack-hot-middleware'</span>)(compiler)</div><div class="line"><span class="comment">// 监听html文件改变事件</span></div><div class="line">compiler.plugin(<span class="string">'compilation'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(compilation)</span> </span>&#123;</div><div class="line">    compilation.plugin(<span class="string">'html-webpack-plugin-after-emit'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(data, cb)</span> </span>&#123;</div><div class="line">        <span class="comment">// 发布事件 reload,这个事件会在dev-client.js中接受到，然后刷新</span></div><div class="line">        hotMiddleware.publish(&#123; action: <span class="string">'reload'</span> &#125;)</div><div class="line">        cb()</div><div class="line">    &#125;)</div><div class="line">&#125;)</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// 注册中间件</span></div><div class="line">app.<span class="keyword">use</span>(devMiddleware);</div><div class="line">app.<span class="keyword">use</span>(hotMiddleware);</div><div class="line"></div><div class="line"><span class="comment">// 使用静态资源</span></div><div class="line">app.<span class="keyword">use</span>(express.<span class="keyword">static</span>(__dirname+<span class="string">'/'</span>));</div><div class="line"></div><div class="line">app.listen(port, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span></span>&#123;</div><div class="line">	<span class="keyword">if</span> (err) &#123;</div><div class="line">		<span class="keyword">throw</span> err;    </div><div class="line">	&#125;</div><div class="line">	console.log(<span class="string">'Listening at http://localhost:'</span> + port + <span class="string">'\n'</span>)</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p><b style="color: red;">dev-client.js 接受reload事件</b><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> hotClient = <span class="built_in">require</span>(<span class="string">'webpack-hot-middleware/client?noInfo=true&amp;reload=true'</span>)</div><div class="line"><span class="comment">// 订阅事件，当 event.action === 'reload' 时执行页面刷新</span></div><div class="line"><span class="comment">// 还记得 dev-server.js中 派发的reload事件吧</span></div><div class="line">hotClient.subscribe(<span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (event.action === <span class="string">'reload'</span>) &#123;</div><div class="line">        <span class="built_in">window</span>.location.reload()</div><div class="line">    &#125;</div><div class="line">&#125;)</div></pre></td></tr></table></figure></p>
+<p>重启服务，修改试试？不出意外，应该万事大吉了。<br>ok，至此，测试程序已经结束了。下篇讲解项目中的webpack配置.</p>
+<h2 id="本案例测试源码下载"><a href="#本案例测试源码下载" class="headerlink" title="本案例测试源码下载"></a><a href="https://github.com/donglegend/webpackprojectstudy" target="_blank" rel="external">本案例测试源码下载</a></h2>  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/webpack/">webpack</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/javascript/">javascript</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://donglegend.github.io/2016/08/24/webpack那些事儿03/" data-title="webpack那些事儿03 | 东胜" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/08/25/webpack那些事儿04/" title="webpack那些事儿04">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  webpack那些事儿04</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/08/24/webpack那些事儿02/"  title="webpack那些事儿02">
+ <strong>NEXT:</strong><br/> 
+ <span>webpack那些事儿02
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread" data-thread-key="2016/08/24/webpack那些事儿03/" data-title="webpack那些事儿03" data-url="http://donglegend.github.io/2016/08/24/webpack那些事儿03/"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#html-webpack-plugin插件的使用"><span class="toc-number">1.</span> <span class="toc-text">html-webpack-plugin插件的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack-dev-middleware-插件登场"><span class="toc-number">2.</span> <span class="toc-text">webpack-dev-middleware 插件登场</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#webpack-hot-middleware-为了左手"><span class="toc-number">3.</span> <span class="toc-text">webpack-hot-middleware 为了左手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现html模版更改自动刷新"><span class="toc-number">4.</span> <span class="toc-text">实现html模版更改自动刷新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本案例测试源码下载"><span class="toc-number">5.</span> <span class="toc-text">本案例测试源码下载</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/css/" title="css">css<sup>1</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>36</sup></a></li>
+		
+			<li><a href="/categories/动画/" title="动画">动画<sup>3</sup></a></li>
+		
+			<li><a href="/categories/后端/" title="后端">后端<sup>3</sup></a></li>
+		
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>12</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/ajax/" title="ajax">ajax<sup>1</sup></a></li>
+		
+			<li><a href="/tags/bower/" title="bower">bower<sup>1</sup></a></li>
+		
+			<li><a href="/tags/code/" title="code">code<sup>1</sup></a></li>
+		
+			<li><a href="/tags/font/" title="font">font<sup>1</sup></a></li>
+		
+			<li><a href="/tags/gulp/" title="gulp">gulp<sup>3</sup></a></li>
+		
+			<li><a href="/tags/hash/" title="hash">hash<sup>1</sup></a></li>
+		
+			<li><a href="/tags/hexo/" title="hexo">hexo<sup>3</sup></a></li>
+		
+			<li><a href="/tags/node/" title="node">node<sup>1</sup></a></li>
+		
+			<li><a href="/tags/php/" title="php">php<sup>1</sup></a></li>
+		
+			<li><a href="/tags/promise/" title="promise">promise<sup>2</sup></a></li>
+		
+			<li><a href="/tags/property/" title="property">property<sup>1</sup></a></li>
+		
+			<li><a href="/tags/title/" title="title">title<sup>1</sup></a></li>
+		
+			<li><a href="/tags/tool/" title="tool">tool<sup>5</sup></a></li>
+		
+			<li><a href="/tags/vue/" title="vue">vue<sup>2</sup></a></li>
+		
+			<li><a href="/tags/webpack/" title="webpack">webpack<sup>6</sup></a></li>
+		
+			<li><a href="/tags/写作/" title="写作">写作<sup>10</sup></a></li>
+		
+			<li><a href="/tags/前端资源/" title="前端资源">前端资源<sup>1</sup></a></li>
+		
+			<li><a href="/tags/数据结构/" title="数据结构">数据结构<sup>6</sup></a></li>
+		
+			<li><a href="/tags/服务器/" title="服务器">服务器<sup>2</sup></a></li>
+		
+			<li><a href="/tags/特效/" title="特效">特效<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> 菜鸟总是在被虐中长大 <br/>
+			人生路上甜苦和喜忧 愿与你分担所有</p>
+	</section>
+	 
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/donglegend?is_all=1" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/donglegend" target="_blank" title="github"></a>
+		
+		
+		
+	</div>
+		<p class="copyright">The first step is as good as half over. 
+			2017
+		</p>
+		<!-- <p class="copyright">
+			Powered by 
+			<a href="http://hexo.io" target="_blank" title="hexo">hexo</a> 
+			and Theme by 
+			<a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> 
+			© 2017 
+		
+		<a href="http://donglegend.github.io" target="_blank" title="东胜">东胜</a>
+		
+		</p> -->
+</div>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?db48d9ce7be510c8086c5439de4ce378";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"null"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var elBackTop = $("#backTop");
+  $(window).scroll(function() {
+    var el;
+    el = $(this);
+    if (el.scrollTop() > 300) {
+      return elBackTop.fadeIn();
+    } else {
+      return elBackTop.fadeOut();
+    }
+  });
+  elBackTop.on("click", function() {
+    return $('body,html').animate({
+      scrollTop: 0
+    }, 300);
+  });
+}); 
+</script>
+
+
+  </body>
+</html>
+
+<!-- <a href="https://github.com/donglegend/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a> -->
+
+<div id="backTop" style="position: fixed; right: 2rem; bottom: 3rem; width: 40px; height: 40px;background: #4691e2; cursor:pointer; border-radius: 6px; line-height: 40px; text-align:center; color: #fff;">顶部</div>
