@@ -68,9 +68,11 @@ author:
   linkedin:   ## e.g. in/jeffweiner08 for https://www.linkedin.com/in/jeffweiner08
 
 #### Comment
-duoshuo: 
-  enable: true  ## duoshuo.com
-  short_name:    ## duoshuo short name.
+# duoshuo 已废弃，没备份数据，哭
+# duoshuo: 
+#   enable: true  
+#   short_name:    
+disqus_shortname: donglegend
 
 ### highlight
 highlight: 
