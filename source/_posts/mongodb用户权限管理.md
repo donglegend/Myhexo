@@ -50,22 +50,22 @@ db.createUser(
 	* read (读取指定数据库)
 	* readWrite (读写指定数据库)
 - 数据库管理角色
-	* dbAdmin (用户在指定数据库中执行管理函数)
-	* dbOwner (管理数据库行为，readWrite, dbAdmin and userAdmin roles.)
-	* userAdmin (用户向system.users集合写入，可以找指定数据库里创建、删除和管理用户)
+	* dbAdmin (数据库管理员)
+	* dbOwner (数据库所有者，合并了 readWrite, dbAdmin and userAdmin roles.)
+	* userAdmin (用户管理员，可以找指定数据库里创建、删除和管理用户)
 - 集群管理角色
-	* clusterAdmin
-	* clusterManager
-	* clusterMonitor
-	* hostManager
+	* clusterAdmin (集群管理员)
+	* clusterManager (集群管理者)
+	* clusterMonitor (集合监视者)
+	* hostManager (主机管理者)
 - 备份恢复角色
-	* backup
-	* restore
+	* backup (备份)
+	* restore (还原)
 - 所有数据库角色
-	* readAnyDatabase
-	* readWriteAnyDatabase
-	* userAdminAnyDatabase
-	* dbAdminAnyDatabase
+	* readAnyDatabase (读任何数据库)
+	* readWriteAnyDatabase (读写任何数据库)
+	* userAdminAnyDatabase (用户管理任何数据库)
+	* dbAdminAnyDatabase  (任意数据库管理员)
 - 超级用户角色
 	* root  
 - 内部角色

@@ -27,7 +27,7 @@ bsondump	mongodump	mongoimport	mongorestore	mongotop
 * mongo  连接mongodb数据库
 
 ## 创建项目目录
-官网和其他参考网站 都是直接用 命令启动，参数配置都是默认的，过于简单和不适用
+官网和其他参考网站 都是直接用 命令启动，参数配置都是默认的，不太适用
 
 ```
 # 路径切换(cd)到一个你喜欢的目录

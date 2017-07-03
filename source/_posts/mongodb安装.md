@@ -25,8 +25,6 @@ tags: mongodb
 打开终端窗口
 
 ```
-brew update
-
 brew install mongodb
 # 安装时间有点长，耐心等待
 ```
