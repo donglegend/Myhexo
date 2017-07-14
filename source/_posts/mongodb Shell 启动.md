@@ -28,7 +28,7 @@ bsondump	mongodump	mongoimport	mongorestore	mongotop
 
 ## 创建项目目录
 官网和其他参考网站 都是直接用 命令启动，参数配置都是默认的，不太适用
-
+[官网配置文件](https://docs.mongodb.com/manual/reference/configuration-options/)
 ```
 # 路径切换(cd)到一个你喜欢的目录
 mkdir mongodbtest && cd mongodbtest

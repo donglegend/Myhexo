@@ -7,6 +7,7 @@ tags: mongodb
 常用数据库命令汇总
 <!-- more -->
 
+[mongo Shell Quick Reference](https://docs.mongodb.com/manual/reference/mongo-shell/)
 [Database Commands Api](https://docs.mongodb.com/manual/reference/command/)
 
 下面简单列一下Shell常用的基本命令
