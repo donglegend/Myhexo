@@ -9,6 +9,8 @@ tags: 特效
 # 项目列表
 
 <ul>
+	<li><a href="http://donglegend.com/effects/2048/index.html">2048</a></li>
+	<li><a href="http://donglegend.com/effects/2048Core/index.html">2048核心</a></li>
 	<li><a href="http://donglegend.com/effects/vuex-study/dist/index.html">Vuex 理解</a></li>
 	<li><a href="http://donglegend.com/effects/VueDatePicker/index.html">Vue DatePicker</a></li>
 	<li><a href="http://donglegend.com/effects/reactDouBan/index.html#/">React Study</a></li>
