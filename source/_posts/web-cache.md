@@ -138,6 +138,10 @@ app.use(function(req, res, next) {
 app.use(express.static(__dirname, options))
 ```
 
+### 其他
+
+勤奋的开发者，在测试 web cache 的时候，有时候发现 304 来源 是 from memory cache ,而不是 from disk cache,那是因为，在一个会话期间，浏览器直接重用了内存里的 资源，关闭浏览器，重新打开即可看到来自 disk
+
 参考资料：
 [Cache-Control MDN docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
 [serve-static 源码实现](https://github.com/expressjs/serve-static)
