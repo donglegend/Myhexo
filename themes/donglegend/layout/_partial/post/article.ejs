@@ -10,7 +10,10 @@
 		</div>
 		<% } %>
 		<%- item.content %>  
-	</div>
+    </div>
+    <% if (!index && theme.donate){ %>
+        <%- partial('donate') %>
+    <% } %>
 		<%- partial('footer') %>   	       
 	</article>
 	<%- partial('pagination') %>

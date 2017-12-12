@@ -72,7 +72,7 @@ author:
 # duoshuo: 
 #   enable: true  
 #   short_name:    
-disqus_shortname: donglegend
+# disqus_shortname: donglegend
 
 ### highlight
 highlight: 
@@ -107,3 +107,7 @@ google_cse:
 ## title: search
 ## ---
 
+#是否开启打赏功能
+donate: true
+#打赏文案
+donate_message: 欣赏此文？求鼓励，求支持！
