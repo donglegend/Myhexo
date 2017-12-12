@@ -44,6 +44,12 @@ tags: http
 * 如果客户端和服务器时间不同步，将会导致缓存的内容提前过期或者到期资源没有正常更新
 * 如果设置一个绝对过期时间，过期来临时将会出现浪涌现象
 
+补充：这个时代，还有一个字段 [Pragma 来禁用缓存](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Pragma)
+
+```
+Pragma: no-cache
+```
+
 ### Cache-Control (max-age)
 
 HTTP/1.1 定义的 Cache-Control 头用来区分对缓存机制的支持情况， 请求头和响应头都支持这个属性。通过它提供的不同的值来定义缓存策略。
