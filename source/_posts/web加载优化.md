@@ -1,36 +1,42 @@
 ---
 title: web加载优化
 date: 2019-04-20 12:47:29
-categories:
-tags:
+categories: javascript
+tags: http
 ---
+
 如何提高页面加载性能?
+
 <!-- more -->
 
-
 # 网页性能分析工具
+
 [Lighthouse](https://developers.google.com/web/tools/lighthouse/)
 [PageSpeed](https://developers.google.com/speed/pagespeed/insights/)
 
 # 如何提高网页加载性能
 
 ## 网页主要在处理文本字符串
--  Minify Your Code 压缩清理空格等减小文本体积
--  Compress Text Resources (Gzip)
+
+- Minify Your Code 压缩清理空格等减小文本体积
+- Compress Text Resources (Gzip)
 - 减少库的使用
 
 ## 图片资源处理
+
 - 移除不必要的图片 (是否真正的需要图片?)
 - 选择合适的图片类型
 - 清除图片 元数据（拍着日期，地点，设备等）
 - 如有必要，调整图片尺寸
 - 压缩
 
-## 合并文本资源(从http请求角度考虑,暂不考虑http2)
-- 合并css文件（css是什么？层叠样式表，所以合并注意层叠覆盖现象）
-- 合并js文件(js作用域问题，存在和css同样的问题)
-- 内联js和css文件
+## 合并文本资源(从 http 请求角度考虑,暂不考虑 http2)
+
+- 合并 css 文件（css 是什么？层叠样式表，所以合并注意层叠覆盖现象）
+- 合并 js 文件(js 作用域问题，存在和 css 同样的问题)
+- 内联 js 和 css 文件
 - 调整资源加载优先级
+
 ```
 <!-- 预加载 (提高资源请求优先级)-->
 <link rel="preload" as="script" href="xxx.js">
@@ -43,7 +49,8 @@ tags:
 <link rel="prefetch" href="other.html">
 ```
 
-http2为什么特殊，资源为啥不用捆绑打包？
+http2 为什么特殊，资源为啥不用捆绑打包？
+
 - 复用请求连接
 - 服务器主动推送资源到浏览器
 
@@ -53,21 +60,25 @@ http2为什么特殊，资源为啥不用捆绑打包？
 浏览器遇到 <link rel="stylesheet"> 标记，启动对样式表的新请求。
 浏览器接收样式表。
 
-## http缓存
+## http 缓存
+
 Cache-control & Expires
 
 ## 网页构建绘制
+
 协调好 html css javascript 三者依赖关系
 
-# webpack优化加载速度
+# webpack 优化加载速度
 
 ## 1.减小生产环境资源文件大小
+
 从两个方面处理：
-- 减小打包文件bundle大小
-启用mode为production即可，也可通过optimization增加自定义配置
-webpack3 需要 UglifyJsPlugin
-- 从loader加载器着手处理
-比如：
+
+- 减小打包文件 bundle 大小
+  启用 mode 为 production 即可，也可通过 optimization 增加自定义配置
+  webpack3 需要 UglifyJsPlugin
+- 从 loader 加载器着手处理
+  比如：
 
 ```css
 /* comments.css */
@@ -75,12 +86,15 @@ webpack3 需要 UglifyJsPlugin
   color: black;
 }
 ```
+
 构建压缩后：
+
 ```js
 // 这里为什么没有压缩呢？
-exports=module.exports=__webpack_require__(1)(),
-exports.push([module.i,".comment {\r\n  color: black;\r\n}",""]);
+(exports = module.exports = __webpack_require__(1)()),
+  exports.push([module.i, '.comment {\r\n  color: black;\r\n}', '']);
 ```
+
 ```js
 // webpack.config.js
 module.exports = {
@@ -98,35 +112,47 @@ module.exports = {
 };
 ```
 
-## 2.声明构建环境Evn变量
+## 2.声明构建环境 Evn 变量
+
 第三方库文件会依赖此条件判断
+
 ```js
-process.env.NODE_ENV=production 
+process.env.NODE_ENV = production;
 ```
 
-## 3. 启用ES modules
+## 3. 启用 ES modules
+
 压缩的时候会清除 没有使用的 代码
+
 ```js
-const render = () => { return 'Rendered!'; };
-/* harmony export (immutable) */ __webpack_exports__["a"] = render;
+const render = () => {
+  return 'Rendered!';
+};
+/* harmony export (immutable) */ __webpack_exports__['a'] = render;
 const commentRestEndpoint = '/rest/comments';
 /* unused harmony export commentRestEndpoint */
 ```
-## 4. images优化
-url-loader 内联base64
+
+## 4. images 优化
+
+url-loader 内联 base64
 
 ## 5. 优化依赖库
-[webpack相关优化插件文档](https://github.com/GoogleChromeLabs/webpack-libs-optimizations)
+
+[webpack 相关优化插件文档](https://github.com/GoogleChromeLabs/webpack-libs-optimizations)
 比如：lodash.js Moment.js
+
 ```js
-babel-plugin-lodash
-moment-locales-webpack-plugin
+babel - plugin - lodash;
+moment - locales - webpack - plugin;
 ```
 
 ## 6. 选择启用 externals 选项
-启用externals，从cdn加载
 
-## 7. webpack mode 
+启用 externals，从 cdn 加载
+
+## 7. webpack mode
+
 ```js
 // webpack.production.config.js
 module.exports = {
@@ -203,6 +229,7 @@ module.exports = {
 ```
 
 ## 8. 利用资源缓存
+
 ```js
 # Server header
 Cache-Control: max-age=31536000
@@ -215,17 +242,19 @@ optimization: {
     runtimeChunk: true,
 }
 ```
-部分 js 文件  可  内嵌到 html文件里
+
+部分 js 文件 可 内嵌到 html 文件里
 
 懒加载
 
 ## 9. 监控 和 分析应用程序
-- webpack-dashboard 
+
+- webpack-dashboard
 - bundlesize
-- webpack-bundle-analyzer 
+- webpack-bundle-analyzer
 
 ## 10. webpack 部分总结
+
 - 清理不必要的代码（压缩，tree shaking, 按需加载依赖）
 - 路由懒加载
-- 跟踪分子app
-
+- 跟踪分析 app
