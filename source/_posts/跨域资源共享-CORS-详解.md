@@ -168,3 +168,5 @@ Access to XMLHttpRequest at 'http://b.ds.com/api/user' from origin 'http://a.ds.
 ### 4.3 浏览器的正常请求和回应
 
 一旦服务器通过了"预检"请求，以后每次浏览器正常的 CORS 请求，就都跟简单请求一样，会有一个 Origin 头信息字段。服务器的回应，也都会有一个 Access-Control-Allow-Origin 头信息字段。
+
+[原文出处](http://www.ruanyifeng.com/blog/2016/04/cors.html)
